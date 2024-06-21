@@ -1,0 +1,500 @@
+INTRO:
+shell поддържа globbing pattern (wildcards):
+? - един произволен символ
+* - произволен брой произволни символи
+[abc] - точно тези символи в скобите
+{fname1, fname2, ...}
+
+
+ls -> отпечатва списък с всички обекти в текущата директория
+-l  : long listing format
+-a : all including if it starts with .
+-d : directory
+-f : file
+-i : inode
+-x : list in lines not columns
+-t : sort by time newest
+-s : sort by size
+ls -d /home/*/     -> vs dir v home
+
+realpath (/home/st/…./f) , basename (f)
+
+id -u           -> user number
+id -g           -> group number
+touch <name>
+
+mkdir <име> - създава директория
+
+mkdir -p <път> - създава и всички директории по пътя
+
+cp <от> <до> - копира файл
+
+cp -r <от> <до> - копира директория
+
+mv <от> <до> - преименува/премества файл
+
+rm <път> - изтрива файл
+
+rmdir <път> - изтрива празна директория
+
+rm -r <път> - изтрива директория и всичко в нея
+
+date - казва текущото време
+-r : last modification time
+%a (Sun) , %A (Sunday), %b (Jan), %B (January), %C (century) , %d (day ot month 1-31), %H (0-23 hour), %I(01-12 hour), %j(day of year 1-366) , %m(month 1-12), %M (minutes 0-59),%n (new line), %s(seconds since 01/01/1970),%S(seconds),%p(am/pm), %u/%w(weekday 1-7/0-6),%y(last 2d of year)
+date +'%Y-%m-%d  %H:%M:%S'
+date -d "$line + 1 day" +'%Y-%m-%d'
+
+stat - statistics
+-c “format” file
+%a/%A (perm bits octal/human), %F(file type),%g/%G(%u)(group id/name of owner), %h(num of hardlinks), %i(inode),%n(file name),%s(size in bytes),%w(file birth date),%x(last accessed),%y(last modified),%z(last status change)
+
+
+find
++n , -n , n
+-type f/d/l
+-empty f/d
+-amin,-mmin,-cmin,-atime (hours) -mtime n  // -mmin -60 last 60mins 
+-gid,-group,-inum,-iname,-iregex “path”,-links (<>= n hl)
+-name “wildcard/glob”
+-size [+,-,]n[c-bytes,k-kilo,M-mega,G-giga]
+-perm -777 , -perm -u=r,g=wx,o=w    , -perm /u-w,g+r,o-w (user и other нямат) 
+-user “name”
+-printf : %m/M(perm), %An/Cn/Tn(last access/change/mod ‘%Y-%M’’)  ,%n(hl),%p(name),%y(type)
+“...” -o “..” //or
+-iname n, -name “”,-group $(id -g), -uid,-mindepth
+-newer
+-executable
+-L follow symlinks
+
+
+chmod <> <path>
+u=rwx,g=,o=
+u[+,-]r
+755 = 111(u), 101(g), 101(o)
+-R recursive
+umask -0022 kazva kvi sa
+
+
+ ln <src> <dest> : hardlink , ln -s <s> <d> : symlink
+
+df <f> (use % i tn, -h human readable, -i, -T (type))
+
+glob
+? -> 1
+* -> 0+
+[abc] -> a or b or c
+[a-zA-Z0-9]*
+[][!] -> [,],!
+[!a-z] -> not a-z
+[[?\] -> [,?,*,\
+*.txt -> <neshto>.txt
+‘*.txt’ -> tocho faila “*.txt”
+
+cat <f> , cat <f1> <f2> - pechata purvo celiq1 posle celiq2 //-n number row
+echo ‘single (‘ “ ‘ “ ‘) double (“)’   //echo {f1,f2,f3}_{p1,p2,p3}
+
+head -n 5 // -n -5 (bez poslednite 5) , -c 5 // za characters
+tail -n 5 // -n +2 (bez purviq ,+1 e celiq fail, “pochvai ot n-tiq red”)
+
+xxd <f> // otmestvane | bytes | text -> red po red , pokazva go binaren ili hexa
+
+file <f> //name | “shell script” | “ASCII”
+tar -cf s.tar f1 f2 // s.tar e arhiv ot teq
+tar -xf s.tar //razarhivira
+
+gzip -k f result //kompresira , -k ne trie f
+        -d res      //dekompresira
+
+tar –gzip -cf …
+
+echo -e ‘1\n2\n3’
+
+paste f1 f2 // line1.1 line2.1 \n line1.2 line 2.2 - kat kolonki , -d ‘delim’
+
+wc 
+-m (байтове), -c (символи), -l (редове), -w (думи)
+wc smth/* -l     -> izvejda na vs filove lines i posle obshto za vsichkite sumirano
+
+
+tr <zamenq tui>  <s tui>
+-d ‘delete symbol’ , -s ‘squeeze symbol’
+tr ':' ' '     -> zamenq vs : s interval
+tr a-z A-Z     -> zamenq vs malki s glavni bukvi
+
+cut <tag> <kak> //izreji = dai mi ,	-d delim	-f fields		-c chars
+-c 2 (izreji na vs red 2riq simvol) // -2(do vtoriq), 2-(sled vtoriq) , 2-5(2ri do 5ti) incl
+-d ‘delim’ -f [-n|n-|n-m|n,m,k] //nomer kolona
+
+
+rev            -> reverses the string
+
+
+sort //defolt za tekst
+-n (chislovo) , -r (reverse), -h (za razmer MB,GB,..), -t ‘delim’ , -k n,m (nomer koloni), -u (uniq)
+uniq // trqq e sortiran, -c (izvejda br sreshtaniq predi da se merge-nat)
+
+comm f1 f2 // samo v f1 , samo v f2 , obshti      - bachka sled sort
+comm -1 -2 f1 f2  //maha 1 i 2 kolona => samo obshti
+
+grep -E ‘regex’   //escape -.\/?[]()*{}
+-A 2 //namereniq i 2 sled nego (after) , -B 2 (analogichno before) , -C 2 (predi i sled po 2 context)
+-i (case insensitive) , -v (vs bez namerenoto) , -o (samo namerenoto ne celiq red) , -q (bez izhod quiet)
+
+regex 
+. -> simvol sqkuv
+^ -> nachalo na red , $ -> krai na red
+[ab] -> a ili b
+[a-zA-Z0-9]
+[^a-z] -> da ne e a-z
+‘ab|bc’ -> ab ili bc
+‘ok (ab|bc) ok’ -> ‘ok ab ok’ ili ‘ok bc ok’
+()* -> 0+ , ()+ -> 1+ , (){4,8} -> mejdu 4 i 8
+‘([ab]).\1’ -> axa , bxb
+
+sed -E ‘s/<regex>/<zamenq>/g’  // -i (edit in-place)
+sed 's/./&\n/g'
+
+who // s0600   pts/0  date hour addr
+whoami // s0600
+
+
+
+diff s1 s2 //ako sa ednakvi nishto ne se pechata (pechata difference)
+diff -q s1 s2 //exit status 0, ako sa razlichni exit status >= 1 + info za razlikite
+diff -s s1 s2 //result: Files s1 and s3 are identical
+
+
+alias h=”some commands”
+h //result
+unalias h
+
+pwgen 10 4   //gives 4 random 0-9A-z with len 10
+
+
+
+test ⇔ [[ smth ]]
+-z “str”  -> len = 0
+-e (exists) , -f (file) , -d (dir) , -h (symlink) , -s (size > 0)
+sravnenie na chisla:  -eq, -gt, -lt, -le, -ge
+sravnenie na nizove:  ==, >, <, !=
+[[. -ge . && . -le . ]]
+[[ ! $1 =~ ^[a-zA-Z0-9]+$ ]] //=~ checks if the string on its left matches the regex
+[[ ! ..  ]]  -> not
+[[ ! $1 =~ ^[0-9]+$ ]] //not num
+
+awk - приема скрипт написан на езика awk и го изпълнява върху текста на stdin
+awk -f <скрипт> чете awk скрипт от файл вместо от аргумент
+awk си е език за програмиране и има BEGIN-END еквивалент на функция/цикъл/if statement
+awk '{ print $1 }' t.txt //printira 1vite koloni s delim ' ', samo print e kato kat
+awk '{ print $NF }' t.txt //printira poslednata kolona na vseki red => NF dava br koloni na red (Number of fields)
+awk -F ':' '{ print $1 }' t.txt //-F slaga nov delim
+awk '{ print $1 $2 "->" $3 }'
+awk -F '/' '{if ($(NF-1)=="0") {print $0}'
+awk '{ sum += $0 } END {print sum/1024}'
+awk -v var=${key} '{if ($1==var) print $0}'
+awk -F ':' '{printf "%s,", $2}' 
+awk '{for (i=3;i<=NF;i++) printf "%s ",$i}'
+awk -F ',' '{printf "%s ", $1} {for (i=2;i<NF;i++) printf "%s,", $i} {printf "%s\n", $NF}'
+awk -F '/' '{for (i=2;i<NF;i++) printf "%s/",$i}'
+echo -e "apple\nbanana\ncherry" | awk '{print NR, $0}'  //number of row from 1 => she dade nomer na red na vs red : 1 apple\n 2 banana ...
+awk 'NR==2' filename // print the 2nd line of a file  , FNR total rows
+{ .. ; printf "%s-%s %s %s",array,drive,ct,mt ; … ; }
+
+
+ps -e           ->   изписва данни за всички процеси
+ps -u <user>    ->   изписва данни за процесите на дадения потребител //-g <group>
+ps -f           ->   казва на ps да изписва повече информация
+ps -ef          ->   показва много информация за всички процеси
+ps -o           ->   можем да включим специфични колонки в изхода на ps
+ps -u pesho -o pid,ppid,cmd   ->   за всеки процес на потребителя pesho, изписва неговия PID, родителски PID и командa //-g za group
+ps -e -o user=account, pid=process_id    ->   Можем да именуваме колонките
+ps -e --sort=etimes -o cmd 
+ps -e --sort=vsz  -o pid,cmd 
+cpu, cmd, comm , pid ,  etimes (time since beginning), vsz/rsz (virtual/real size) 
+
+
+
+xargs -I{} grep ':{}:' /etc/group
+“ $( some inner script ) ”
+
+cm > f //vs otiva v f
+cm 1> f , cm 2> f , cm &> f (mai e kat >) , cm < f (cat f e in na comm)
+
+/dev/null
+
+> prezapisva , >> dobavq nai-otdolu
+
+
+
+—------------------------------------------------------------------------------------------------------------------------
+
+
+SCRIPT
+
+#!/bin/bash
+${0}  ->  putq do skripta
+${1}, ${2}, ...   -> dostup do parametrite
+${#}  ->  broi parametri
+${*}  ->  vsichki parametri: "${1} ${2} ${3}"
+${@}  ->  vsichki parametri: "${1}" "${2}" "${3}"
+${?}  ->  exit status na predishnata komanda
+${!}  ->  PID // wait <pid>
+${IFS}  -> delim
+
+ako e v dvoini kavichki ${} se vijda , v edinichni ne
+“${}” ok , ‘${}’ not ok
+
+ako e bez $ polzva obekta, s $ polzwa stoinostta
+
+read name
+echo "Hello, ${name}"
+
+read a b
+echo "${a} + ${b} equals $((a+b))"
+$(( <aritmetichen izraz> ))
+bc  -> priema ot stdin i pak smqta aritmetichni izrazi
+
+max=${currentCount}
+currentCount=$(( currentCount + 1 ))
+
+arr[i]=$j
+userName=${arr[${choice}]}
+
+KATO SUZDAVASH PROMENLIVI TR SA DOLEPENI DO RAVNOTO, KATO PRAISH KOMANDI TR DA SA RAZDELENI
+
+tmp=$( mktemp )   or tmpdir=$( mktemp -d )  // rm $tmp    or   rm -r $tmp at end of file
+find ~ -type f -printf '%TY-%Tm-%Td %p\n' | sort | cut -d' ' -f1 > $tmp
+
+read -a arr <<< "Hello World" // -a array: arr[0]=Hello , arr[1]=World
+read -d ":" var <<< "Hello:World" // -d delim : vzema samo var=Hello
+read -n 3 var <<< "Hello World" // -n nchars : var=Hel
+read -p "Enter your name: " name // -p prompt
+
+shift , shift n //shift n args
+Before shift operation: arg1 arg2 arg3
+After shift operation: arg2 arg3 //${1}=arg2
+
+{ <cmd 1> ; <cmd 2> ; }  -> tuk se promenqt neshtata
+( <cmd 1> ; <cmd 2> ; )  -> tuk e drug shell i pravi kopie i vutre ne pravi realni promeni
+
+[[ <logicheski izraz> ]]  ->  vrushta 0 ili 1 ⇔ test
+
+((count++))
+mn=$n
+sleep n //program freeze for n sec
+exit 0 -> ok  ,  exit >0 -> not ok
+рандъм число е с $(( (RANDOM % b) + a  )), което ще генерира число в интервала [a, b]
+
+
+
+—----------------------
+
+array:
+
+declare -a arr=("apple" "banana" "cherry")
+arr+=("date")
+for i in "${my_array[@]}" // "$i" == "banana"
+
+map:
+
+declare - A arr
+arr["abv2"] = 1
+[[ -z ${ arr["$ans"] } ]] => arr["$ans"] = 2
+arr[index]=${line}
+
+obhojdane:
+
+//s ! minava prez indeksite , bez ! prez elementite => za map s ! e za value , bez ! e za key
+for i in "${!arr[@]}" // "$i -> ${arr[$i]}"
+
+—----------------------
+
+
+
+—------------------------------------------------------------------------------------------------------------------------
+sintaksis:
+
+—----------------------
+if <komanda>
+then
+   <deistvie>
+else //elif
+   <dr neshto>
+fi
+
+
+—----------------------
+for <promenliva> in <masiv ot argumenti razdelen s interval> 
+do
+  <deistvie>
+done
+
+
+for i in "${@}" ;...
+for i in $( seq 1 10 )
+for (( i=0; i<5; i++ ))
+
+------------------------
+
+while read line   //while read col1 col2 res_cols   //while true , break, continue
+do
+       
+done < <( pipes )
+
+—----------------------
+
+
+
+function <ime> {
+     //funkciite si polzvat ${0} i drte takiva za argumentite s koito sa izvikani
+     //suzdavame promenlivi vutre s local :   local smth = "${1}"
+}
+
+
+—----------------------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+NA PETIO LAINATA 😵‍💫
+env variables
+${0} script path
+${1} do n parametri
+${#} broi parametri
+${@} vsi4ki parametri pootdelno
+${*} vsi4ki parametri concatenirano
+${?} exit status na posl komanda
+${!} PID
+@{IFS} razdelitel na parametrite po default whitespace
+//Форматиране и извеждане
+cat [-n]
+cut [-f(ield) -d(elimiter) (работят като при сорт) -c num1-num2 (ot char na pos num1 do char na pos num2)] 
+head [-n(um lines, ако е отрицателно е без последните n) -c(hars)]
+sort [-n(umerical) -r(everse) -k {число} (по коя колона, комбинира се с t, за да определи колоните) -t(delimiter) -u(nique)]
+tail [-n(um lines, ако е с + числото отпред е без първите n-1) -c(hars)]
+tr [-d] тва е replace <кое> <с кое> [с d трие вс срещания и няма <с кое>]
+uniq [-c(ount)] 
+wc [-l -m -c -w] number of [lines char bytes words] in format [lines file]
+
+//Операции с файлове и директории
+basename само името
+cp [-r] <от> <до> копира [директория]
+df file space usage
+dirname само директорията
+du [-a(ll)] df ama za direktorii
+find [
+-user $id
+-type f d l (file directory symlink)
+-size +-40[c,k,M,G] more/less than 40 b,kb,mb,gb
+-exec (smmth) {} \; // exec test ! -e {} \ -print; всички счупени линкове с това
+-delete трие всички мачове
+-readable with read perm
+-mindepth 
+-maxdepth 
+-name 
+-iname ".*" всички видими файлове
+-perm <perms> (exact match) / -g=w (all that have g w) / /222 (writable)
+-print 
+-printf
+	%m - permissions
+	%f file base name
+	%A@ last access to file in unix
+	%C@ status change
+	%d file depth
+	%g group name
+	%G group id
+	%i inode num
+	%1 na koe e symlink (nqma nishto ako ne e)
+	%n number of hard links
+	%p path
+	%s size
+	%T@ last modification in unix (imashe go na dosta mesta tva)
+	%u user name
+	%U userId
+	%Y
+-executable като readable
+ -inum със inode nomer ...]
+ln [-s] <до> <от> Създава [sym]линк
+mkdir [-p] създава директория [рекурсивно]
+mv
+readlink
+rm [-f(orce) -v(erbose)]
+stat [-c(format)] - info za file
+	%a perm (oct)
+	%A perm
+	%F type
+	%g gid
+	%G gName
+	%h num of hardlinks
+	%i inode num
+	%n file namme
+	%s size bytes
+	%u uid
+	%U uName
+	%w time of creation
+	%x time of last access
+	%y time of last mod
+	%z time of last status change
+	ВРЕМЕНАТА С ГЛАВНИ БУКВИ СА В unix timestamp или както са нарича абе числа са
+touch създава файл
+
+//Операции с процеси
+kill pid/ killall uid
+ps [-e(very) -o(user defined format, naprimer pid,ppid,tid,stat,euid,pgrp,cmd....) -u(ser, matchva euid) -g(roup) -sort <po kakvo>]
+
+//Права и потребители
+chmod u=r / 435 / u+x / u-x / +x / -x (default e 777 dir 666 file
+chown ownr:grp <file>
+id [-u]
+whoami
+
+//Специални функции
+awk [-F(split by separator) -v(за слагане на променлива var=val)]
+	NR number of rows
+	NF number of fields
+	awk '/regex/ {print}'
+	printf '%s', $i принтва и-тия фиелд
+bc събира числа, използва се като му се подават файлове с числа с pipe
+date [-u(tc) -d(from date) +<format>] 
+exec 
+grep [-e(za regex) -q(uiet) -o(връща самия мач а не целия ред) -v(invert patter) -F(ixed string) -f(ile)]
+mkpasswd
+pwgen
+printf [шибан синтаксис и форматирания лтф]
+sed [-E(regex) -i(nplace)]
+	формата е s/от/до/g и прави реплейс
+sha256sum вади го във формат хеш файлнейм
+tar [-x(tract) -f(ile винаги посл) -t(list archive) -c(reate)]
+xargs [-I<променлива>] -> xargs -I{} (smth) {} ({} може да бъде всичко, не е нужно да се казва така, но това е конвенцията)
+xxd binary file content
+
+//Специално за скриптове и променливи
+echo [-n(o new line)]
+exit
+read [-p] Чете [with prompt]
+test
+
+//Syntax
+if [[ ! -[f,d,r,w,x,e,h,z] ${file} ]] - if file is not [file,directory,readable,writable,executable,exist,symbolic link,empty]
+declare -A arr - arr where string can be index; if [[ ! -v arr[index] ]] ; then – arr[index] not declared
+if [[ "$EUID" -ne 0 ]] - if user not root
+
+if [[ uslovie ]] then .... else .... elif .... fi
+while [[uslovie]]/read var/true do .... done /<<(<comanda>)
+for i in ${file} do ... done
+comparisons -eq -gt -lt -le -ge / == > < != (za string) / =~ za regex / ako sled [[ ima ! e otricanie
+
+
+

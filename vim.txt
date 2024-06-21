@@ -1,0 +1,28 @@
+:colo darkblue
+:colo murphy
+
+
+
+dd - delete line
+u - undo
+Ctrl r - redo
+
+/<some word> - namira duma (n - next , shift - prev)
+
+:%s/../../g  - zameenq vs sreshtaniq vuv faila
+:%s/../../gc - pita za confirmation vseki put
+
+w - duma
+
+v - visual mode
+
+y - copy (yy)
+d - cut
+p - paste (with \n for visual line mode)
+
+shift <desen klik s mishkata> - paste from clipboard
+
+shift <s mishkata i zadurjane na lqvoto> - copy to clipboard
+
+tmux -> for 2 windows
+desen klik i kot iskam

@@ -1,0 +1,15 @@
+Качване на файл от астеро към компа:
+1. cp <файла> <твоята си директория>
+2. tar -xf <файла>
+3. mv <файла е вече без .tar.xz> <както искаш да се казва>
+4. tar -cf <как искаш да се казва.tar.xz> <имената на файловете в архива>
+5. отваряш FileExplorer и терминал като пишеш cmd горе на лентата с локацията ти //примерно Desktop
+6. scp <username>@astero.openfmi.net:/home/students/<username>/<file path> <destination>
+7. ще те пита за паролата в astero пак е невидима както е там
+
+
+обратния процес от компа към астеро е:
+8. pscp <file path> <username>@astero.openfmi.net:/home/students/<username>
+
+
+пътя на компа е примерно: C:\Users\<user>\Desktop\<folder>

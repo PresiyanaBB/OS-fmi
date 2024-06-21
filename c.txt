@@ -1,0 +1,409 @@
+gcc filename.c -o filename.exe
+./filename.exe
+
+
+декларираш вс функ в началото и после ги разписваш(без на мейна де)
+
+
+int main(void) {
+/ / . . .
+}
+
+int main (int argc , char* argv [ ]) {
+/ / . . .
+}
+
+
+#include <stdint.h>    //int32_t , uint32_t
+#include <string.h>    //strlen
+#include <unistd.h>    //getuid, geteuid  -> uid_t m = getuid(), lseek - promqna na get pointer-a
+#include <sys/types.h> //uid_t
+#include <stdio.h>     //printf  ("print %s", smth) , snprintf (num_as_text, sizeof(num_as_text), "%d", num) - parse int to string(char num_as_text[6])
+#include <stdlib.h>    //exit
+#include <fcntl.h>     //open 
+#include <errno.h>     //errno - number of last process , if we open and want to know why exactly failed, for fork management
+#include <err.h>       //err(1,"Can't do it") - (exit status,mssg) , it stops the program, cant be (1, "Cant do %s", some var) from printf
+                       //warn("ne bachkam")  -  only gives mssg but doesnt terminate program
+#include <sys/stat.h>  //stat
+#include <stdbool.h>  //bool
+#include <sys/wait.h> 
+#include <signal.h>    //signals used by kill to send to child
+
+
+
+//getpid() - child process will be probably > than parent
+//getppid() - get parent process id
+ 
+
+int32_t  /  uint16_t
+
+char name[] = "Иван"
+
+
+typedef struct __attribute__((packed)){
+    char name[20];
+    uint8_t age;
+} person;
+
+
+person_t* people = malloc(num_people*sizeof(person_t));   //<=> new in c++
+free(people);  //<=> delete in c++
+
+
+char * indentation = (char *) malloc(n + 1);
+free(indentation);
+
+
+getuid(), geteuid() // effective id
+
+
+exit(some exit number)  //spira programata
+
+
+open() //otvarq file
+int open(const char* file_name, int flags, int mode - optional)  //returns -1 if it fails
+
+flags: x1 | x2 | x3 ...
+O_WRONLY , O_RDONLY , O_RDWR , O_CREAT , O_TRUNC , O_APPEND
+
+mode - like chmod if we use O_CREAT will set user,group,other - open(...,...,0644)
+
+close() - zatvarq faila (failoviq deskriptor) , close_safe(fd)
+
+ssize_t read(int fd, void buf[.count], size_t count); //int how_many_bytes_were_read = read(f1,buff,1024) , char buff[1024]
+size_t read(int fd, char& ch, size_t count);//read byte by byte -> read(f1,&c,1)
+result from read : 0 if we reached end, <0 err, >0 data len
+can use strlen(buf)
+
+write is analogical
+const char prompt[] = "something to read";
+int write_res = write(1,prompt,strlen(prompt))
+int write_res = write(1,&s,sizeof(s))
+
+
+file descriptor - koda vurnat ot open
+fd za: stdin=0 , stdout=1 , stderr=2
+
+
+off_t lseek(int fd, off_t offset, int whence); //whence: SEEK_SET (from beginning), SEEK_CUR, SEEK_END
+
+
+------------------------
+STAT:
+
+
+stat - display file or file system status - used with "path" when file descriptor isn't open
+fstat - used when file descriptor is already open
+
+
+struct stat {
+    dev_t      st_dev;      /* ID of device containing file */
+    ino_t      st_ino;      /* Inode number */
+    mode_t     st_mode;     /* File type and mode */
+    nlink_t    st_nlink;    /* Number of hard links */
+    uid_t      st_uid;      /* User ID of owner */
+    gid_t      st_gid;      /* Group ID of owner */
+    dev_t      st_rdev;     /* Device ID (if special file) */
+    off_t      st_size;     /* Total size, in bytes */
+    blksize_t  st_blksize;  /* Block size for filesystem I/O */
+    blkcnt_t   st_blocks;   /* Number of 512 B blocks allocated */
+
+   struct timespec  st_atim;  /* Time of last access */
+   struct timespec  st_mtim;  /* Time of last modification */
+   struct timespec  st_ctim;  /* Time of last status change */
+
+   #define st_atime  st_atim.tv_sec  /* Backward compatibility */
+   #define st_mtime  st_mtim.tv_sec
+   #define st_ctime  st_ctim.tv_sec
+};
+
+
+void f() {
+   struct stat info;
+   char buf[1024];
+   int res = stat("/tmp/foo.txt",&info);
+   snprintf(buf,sizeof(buf),"owner uid = %d \n",info.st_uid);
+   snprintf(buf,sizeof(buf),"owner gid = %d \n",info.st_gid);
+   snprintf(buf,sizeof(buf),"size = %d bytes \n",info.st_size);
+}
+
+
+int n;
+scanf("%d", &n) - read number from console
+-------------------------------------------------
+
+
+int main(int argc,char** argv) //argc>=1, shtot argv[0]=imeto na programata
+
+
+void close_all(void);
+void close_all(void) {
+    int errno_ = errno;
+    for (int i = 0; i < files_count; i++) {
+        if (fds[i] >= 0) {
+            close(fds[i]);
+        }
+    }
+
+    errno = errno_;
+}
+
+
+----------------------------------
+FORK:
+
+
+int id = fork();
+id=0 for child
+id=some number for main process
+
+
+if(id != 0) {
+     wait(); //main process waits 1 of its children to finish and then goes
+}
+
+
+child process has exact copy of every variable of main process but allocated in different place in the memory. Only diff can be int id=fork(), so the int returned from the fork as it is 0 for the child and 4000-4999 for the parent.
+
+
+when use getpid()/getppid() it returns the actual process id 
+//smth like 3124 for parent and 3131 for child
+
+
+when parent process terminates/exits (for example you used sleep(10) in child), there is another process that adopts our child process (with another pid/ppid)
+
+
+wait(NULL) - waits for one child to finish its process -> if it has no children returns -1 , otherwise returns the pid of the first child that finishes its process and continues
+
+while( wait(NULL)!=-1 || errno!=ECHILD) {
+   printf("waiting for all children to finish");
+}
+
+
+
+waitpid(some_pid, NULL, 0);
+
+---
+
+id_t child = fork();
+
+if (child == -1) {
+	err(4, "Error while fork parent process");
+}
+
+if (child == 0) {
+	write(fd, str, strlen(str), file_name);
+	exit(0);
+}
+
+int status;
+if (wait(&status) == -1) {
+	close(fd);
+	err(5, "Could not wait for child process to finish");
+}
+
+if (!WIFEXITED(status)) {    // WIFEXITED -> bool did_child_terminated_normally
+	close(fd);
+	err(6, "Child process did not terminate normally");
+}
+
+if (WEXITSTATUS(status) != 0) {   // WEXITSTATUS = int child exit status
+	close(fd);
+	err(7, "Child process exited with status != 0");
+}
+
+----------------------------
+PIPES:
+
+
+pipe(int arr[2])-saves file descriptors to the array -> arr[0]=read, arr[1]=write ; returns 0 is ok, -1 if not ok
+
+int fd[2];
+pipe(fd); 
+int id = fork();
+
+
+Имаме масив от 2 елемента от дескриптори към нещо като временен файл(fifo queue: все едно fd={open(tmp,RDONLY),open(tmp,WRONLY)}) и 0 е за четене, 1 за писане. Когато fork-нем тези дескриптори са същите => водят към един и същ файл. Освен че детето и родителя редактират един и същи файл, също така те са си отворили дескриптори към един и същи файл, което означава че всеки процес (и децата и родителя) трябва да затворят своите дескриптори с close(fd[0]);close(fd[1]);
+
+Ако всички тръби за писане са затворени и ако има нещо останало в тръбата може да се чете без да има отворена тръпа за писане
+
+ако искаме детето да пише и да чете и в същото време родителя да пише и чете - да си комуникират постоянно един към друг , тогава ни трябват 2 тръби - при детето ще затворим едната за вход, дрта за изход, а при родителя обратно. така ще се изчакват
+
+
+копираме файлови дескриптори с dup -> duplicate
+
+int dup(fd) -> receives fd and returns another fd that also points to the same file
+int dip(oldfd, newfd) -> използва се за пренасочване на главните потоци 0,1,2 - вход,изход,грешки //dup2(our_file, 1)
+
+if we send array with pipe, first send int arrlen and then the array
+
+if we send string(char str[128]) we change str[strlen(str)]='\0' and then int n=strlen(str)+1;write(fd, &n, sizeof(int));write(fd,str,strlen(str)+1);
+
+----------------------------------------
+FIFO - NAMED PIPE
+
+
+mkfifo("name",perm like in chmod);
+
+if(mkfifo("my_fifo",0777) == -1 && errno!=EEXIST) {
+   return 1 / exit(1);
+}
+
+
+int fd = open("file name",mode) //for FIFOs it will freeze until the file is open for both reading and writing
+
+example :  {
+
+*in test.c*
+int fd = open("f1",O_WRONLY); //freezes on this line
+
+*in terminal*
+cat f1                       //here cat opens O_RDONLY , so test.c wakes up and continues it code from where it stopped
+
+}
+
+
+
+better to use: write(fd,arr,sizeof(int)*arrlen) , instead of in a for loop to arrlen 1 by 1
+
+----------------------------------------
+errno:
+
+ECHILD - child process of the main process
+EEXIST - when we try to create file/fifo but it already exists
+
+
+----------------------------------------
+exec:
+
+до където е стигнала програмата се изпълнява и после след exec продължава другото и не се връща обратно
+
+execl* - uses list of arguments to pass
+exec*p - given as environment variable PATH => in same dir where is main.exe
+execv* - uses array of values given as argument
+
+if exec** returns <0 (-1) => error
+
+execl("usr/bin/cat", "cat", "/etc/issue", (char*)NULL);
+
+execlp("ps","ps","-e",(char*)NULL);
+execlp("wc","wc","-l",(char*)NULL);
+execlp("grep","grep","firefox",(char*)NULL);
+execlp("head", "head", "-n", "5", "folder1/f1.txt" , (char*)NULL); //the path if from where the c code is executed the same directory
+
+char* args[argc+1];
+char cat[] = "cat";
+args[0]=&cat; args[argc]=NULL;
+for(int i=1;i<argc;i++) { args[i]=argv[i];}
+execvp("cat",args); 
+
+
+---------------------------------------------
+kill:
+
+sends signal to child to do smth , #include <signal.h>
+kill(child_pid, SIGKILL);
+
+
+some useful signals:
+SIGCHLD - child stopped or terminated, signal is used to send from child to parent
+SIGKILL - kill the process with the pid given
+SIGSTOP + SIGCONT - when use stop, the process with the given pid stops and when send cont (from continue) the process continues executing
+
+
+------------------------------------------------
+simulating | in linux:
+
+int fd[2];
+pipe(fd);
+int pid1=fork();
+
+if(pid1==0) {
+//in child 1
+    close(fd[0]);
+    dup2(fd[1],1);
+    close(fd[1]);
+    execlp(first command);
+}
+
+int pid2=fork();
+if(pid2==0) {
+//in child 2
+    dup2(fd[0],0);
+    close(fd[0]);
+    close(fd[1]);
+    execlp(second command);
+}
+
+close(fd[0]);
+close(fd[1]);
+waitpid(pid1, NULL, 0);
+waitpid(pid2, NULL, 0);
+
+--------------------------------------------------------
+zadachki:
+
+-------
+1. cmd...cmdn , kolko procesa sa uspeli, kolko ne sa?
+-------
+int main(int argc, char** argv) {
+
+int s = 0;
+int f = 0;
+
+for (int i = 1; i < argc; i++) {
+	int pid = fork();
+	if (pid == 0) {
+		execlp(argv[i], argv[i], NULL);
+		exit(1);
+	}
+
+	int status;
+	wait(&status);
+	if (WIFEXITED(status) && WEXITSTATUS(status) == 0) {
+		s++;
+		continue;
+	}
+	f++;
+}
+
+printf("ok: %d, not ok: %d\n", s, f);
+exit(0);
+}
+
+
+
+------
+2. 
+------
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
